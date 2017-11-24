@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "446283943436",
+    "firebase_url": "https://fir-aula-a14f8.firebaseio.com",
+    "project_id": "fir-aula-a14f8",
+    "storage_bucket": "fir-aula-a14f8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446283943436:android:2c0b8b2bfac22b65",
+        "android_client_info": {
+          "package_name": "br.edu.infnet.firebaseaula"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "446283943436-mtoaeualrsugj37fli1lg7c46ob75uve.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.edu.infnet.firebaseaula",
+            "certificate_hash": "8ea9e94a58ad29545bc4c4a8869dcc5f44624e82"
+          }
+        },
+        {
+          "client_id": "446283943436-fp75g2s0cadg95ertvs29lc90vueub5q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsH1tylc6CL7h3DdgO4Mq0PaX_xa_gUCE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "446283943436-fp75g2s0cadg95ertvs29lc90vueub5q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
