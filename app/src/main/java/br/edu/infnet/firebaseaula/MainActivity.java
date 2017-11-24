@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnUploadImagem;
+    Button btnUploadImagem, btnUploadArquivo;
     ProgressDialog progressDialog;
 
     @Override
@@ -32,11 +32,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         btnUploadImagem = (Button) findViewById(R.id.btnUploadImagem);
+        btnUploadArquivo = (Button) findViewById(R.id.btnUploadArquivo);
 
         /**
          * Obtem a referencia ao objeto FirebaseStorage ondem os arquivos são armazenados.
          */
-        FirebaseStorage storage = FirebaseStorage.getInstance();
+        final FirebaseStorage storage = FirebaseStorage.getInstance();
         final StorageReference storageReference = storage.getReferenceFromUrl("gs://fir-aula-a14f8.appspot.com/").child("firebase.png");
 
         /**
@@ -50,6 +51,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * Realiza UPLOAD DE ARQUIVO
+         */
+        btnUploadArquivo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fazerUploadArquivo(storageReference,storage);
+            }
+        });
     }
 
     private void fazerUploadImagem(StorageReference storageReference){
@@ -67,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             byte[] data = outputStream.toByteArray();
 
             //carrega no firebase
-            showProgressDialog("Fazendo upload de imagem", "Por favor, aguarde...");
+            showProgressDialog("Realizando upload da imagem", "Por favor, aguarde...");
 
             UploadTask uploadTask = storageReference.putBytes(data);
             uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -75,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onFailure(@NonNull Exception exception) {
                     exception.printStackTrace();
                     dismissProgressDialog();
-                    Toast.makeText(MainActivity.this, "Ocorre uma falha durante o upload!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Ocorreu uma falha durante o upload!", Toast.LENGTH_SHORT).show();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -88,6 +98,30 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void fazerUploadArquivo(StorageReference storageReference, FirebaseStorage storage){
+        storageReference = storage.getReferenceFromUrl("gs://fir-aula-a14f8.appspot.com/").child("teste_upload.txt");
+
+        //Upload input stream to Firebase
+        showProgressDialog("Realizando upload do arquivo", "Por favor, aguarde...");
+
+        InputStream stream = getResources().openRawResource(R.raw.teste);
+        UploadTask uploadTask = storageReference.putStream(stream);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                exception.printStackTrace();
+                dismissProgressDialog();
+                Toast.makeText(MainActivity.this, "Ocorreu uma falha durante o upload!", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                dismissProgressDialog();
+                Toast.makeText(MainActivity.this, "Upload realizado com sucesso!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showProgressDialog(String titulo, String mensagem){
