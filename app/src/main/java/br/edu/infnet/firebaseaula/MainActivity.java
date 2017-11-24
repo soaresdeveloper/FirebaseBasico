@@ -1,5 +1,6 @@
 package br.edu.infnet.firebaseaula;
 
+import android.app.ProgressDialog;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,6 +24,7 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
 
     Button btnUploadImagem;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +46,13 @@ public class MainActivity extends AppCompatActivity {
         btnUploadImagem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fazerUpload(storageReference);
+                fazerUploadImagem(storageReference);
             }
         });
 
     }
 
-    private void fazerUpload(StorageReference storageReference){
+    private void fazerUploadImagem(StorageReference storageReference){
         AssetManager assetManager = MainActivity.this.getAssets();
         InputStream istr;
         Bitmap bitmap;
@@ -64,25 +66,41 @@ public class MainActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
             byte[] data = outputStream.toByteArray();
 
-            //carrega no firebase                    showProgressDialog("Upload Bitmap", "Uploading...");
+            //carrega no firebase
+            showProgressDialog("Fazendo upload de imagem", "Por favor, aguarde...");
+
             UploadTask uploadTask = storageReference.putBytes(data);
             uploadTask.addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     exception.printStackTrace();
-                    //dismissProgressDialog();
-                    Toast.makeText(MainActivity.this, "Upload Failed!", Toast.LENGTH_SHORT).show();
+                    dismissProgressDialog();
+                    Toast.makeText(MainActivity.this, "Ocorre uma falha durante o upload!", Toast.LENGTH_SHORT).show();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                   // dismissProgressDialog();
-                    Toast.makeText(MainActivity.this, "Upload successful!", Toast.LENGTH_SHORT).show();
+                    dismissProgressDialog();
+                    Toast.makeText(MainActivity.this, "Upload realizado com sucesso!", Toast.LENGTH_SHORT).show();
                 }
             });
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void showProgressDialog(String titulo, String mensagem){
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setTitle(titulo);
+        progressDialog.setMessage(mensagem);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog(){
+        if (progressDialog != null){
+            progressDialog.dismiss();
         }
     }
 }
