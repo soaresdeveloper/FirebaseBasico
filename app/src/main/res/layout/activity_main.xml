@@ -22,6 +22,20 @@
 
         android:text="Fazer upload de arquivo"/>
 
+    <Button
+        android:id="@+id/btnDownloadImagem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:text="Fazer download de imagem"/>
+
+    <ImageView
+        android:id="@+id/imgView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"/>
+
 
 
 </LinearLayout>

@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -23,7 +24,11 @@ import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnUploadImagem, btnUploadArquivo;
+    private static final String URL_STORAGE = "gs://fir-aula-a14f8.appspot.com/";
+    private static final String MENSAGEM_SUCESSO_UP = "Upload realizado com sucesso!";
+    private static final String MENSAGEM_ERRO_UP = "Ocorreu uma falha durante o upload!";
+    Button btnUploadImagem, btnUploadArquivo, btnDownloadImagem;
+    ImageView imageView;
     ProgressDialog progressDialog;
 
     @Override
@@ -33,16 +38,18 @@ public class MainActivity extends AppCompatActivity {
 
         btnUploadImagem = (Button) findViewById(R.id.btnUploadImagem);
         btnUploadArquivo = (Button) findViewById(R.id.btnUploadArquivo);
+        btnDownloadImagem = (Button) findViewById(R.id.btnDownloadImagem);
+        imageView = (ImageView) findViewById(R.id.imgView);
 
         /**
          * Obtem a referencia ao objeto FirebaseStorage ondem os arquivos são armazenados.
          */
         final FirebaseStorage storage = FirebaseStorage.getInstance();
-        final StorageReference storageReference = storage.getReferenceFromUrl("gs://fir-aula-a14f8.appspot.com/").child("firebase.png");
+        final StorageReference storageReference = storage.getReferenceFromUrl(URL_STORAGE).child("firebase.png");
 
         /**
          * Realiza o UPLOAD DE IMAGEM
-          */
+         */
 
         btnUploadImagem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,12 +64,19 @@ public class MainActivity extends AppCompatActivity {
         btnUploadArquivo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fazerUploadArquivo(storageReference,storage);
+                fazerUploadArquivo(storageReference, storage);
+            }
+        });
+
+        btnDownloadImagem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fazerDownloadImagem();
             }
         });
     }
 
-    private void fazerUploadImagem(StorageReference storageReference){
+    private void fazerUploadImagem(StorageReference storageReference) {
         AssetManager assetManager = MainActivity.this.getAssets();
         InputStream istr;
         Bitmap bitmap;
@@ -85,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onFailure(@NonNull Exception exception) {
                     exception.printStackTrace();
                     dismissProgressDialog();
-                    Toast.makeText(MainActivity.this, "Ocorreu uma falha durante o upload!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, MENSAGEM_ERRO_UP, Toast.LENGTH_SHORT).show();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     dismissProgressDialog();
-                    Toast.makeText(MainActivity.this, "Upload realizado com sucesso!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, MENSAGEM_SUCESSO_UP, Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -100,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void fazerUploadArquivo(StorageReference storageReference, FirebaseStorage storage){
-        storageReference = storage.getReferenceFromUrl("gs://fir-aula-a14f8.appspot.com/").child("teste_upload.txt");
+    private void fazerUploadArquivo(StorageReference storageReference, FirebaseStorage storage) {
+        storageReference = storage.getReferenceFromUrl(URL_STORAGE).child("teste_upload.txt");
 
         //Upload input stream to Firebase
         showProgressDialog("Realizando upload do arquivo", "Por favor, aguarde...");
@@ -113,18 +127,37 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(@NonNull Exception exception) {
                 exception.printStackTrace();
                 dismissProgressDialog();
-                Toast.makeText(MainActivity.this, "Ocorreu uma falha durante o upload!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, MENSAGEM_ERRO_UP, Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
                 dismissProgressDialog();
-                Toast.makeText(MainActivity.this, "Upload realizado com sucesso!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, MENSAGEM_SUCESSO_UP, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void showProgressDialog(String titulo, String mensagem){
+    private void fazerDownloadImagem() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReferenceFromUrl(URL_STORAGE).child("Fluminense_FC_escudo.jpg");
+
+        final long ONE_MEGABYTE = 1024 * 1024;
+
+        //baixa o arquivo como um array de bytes
+        showProgressDialog("Realizando o download da imagem", "Por favor, aguarde...");
+        storageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                dismissProgressDialog();
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                imageView.setImageBitmap(bitmap);
+                Toast.makeText(MainActivity.this, "Download realizado com sucesso!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showProgressDialog(String titulo, String mensagem) {
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.setTitle(titulo);
         progressDialog.setMessage(mensagem);
@@ -132,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
-    private void dismissProgressDialog(){
-        if (progressDialog != null){
+    private void dismissProgressDialog() {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }
